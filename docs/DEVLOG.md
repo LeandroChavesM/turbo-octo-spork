@@ -95,7 +95,7 @@ Exibir a lista de categorias na tela usando JavaScript.
 
 ## 🧠 Decisões de Arquitetura & Design
 
-- **Arquivos com somente uma responsabilidade:** Isso facilita na hora de manutenção, e deixa tudo organizado além de limpo.
+- **Arquivos com somente uma responsabilidade:** Isso facilita na hora de manutenção.
 
 ## 🐛 Desafios & Soluções
 
