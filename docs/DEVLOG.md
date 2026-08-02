@@ -133,3 +133,56 @@ Exibir a lista de categorias na tela usando JavaScript.
 </details>
 <br>
 =====================================
+
+# Devlog [v0.2] - Lista de Categorias
+
+> **Data:** 02/08/2026  
+> **Horário:** 8:00  
+> **Status:** 🟢 Concluído
+
+---
+
+## 🎯 Objetivo
+
+Exibir a lista de categorias na tela usando JavaScript.
+
+## ✨ O que foi implementado
+
+- [x] **[REFACTOR]** Refatorando a função do `renderCategories.js` para deixar mais genérica.
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **Função genérica:** Isso facilita na hora de manutenção, e posso usar futuramente em outro lugar.
+
+## 🐛 Desafios & Soluções
+
+**Problema Encontrado**
+
+    Nenhum problema encontrado nesta etapa
+
+**Causa Raiz**
+
+**Como foi Resolvido**
+
+## 💡 Lições Aprendidas
+
+- Usar funções genéricas ajudam no decorrer do projeto, evita redundancia e mantém a lógica em um lugar só.
+
+## 🔮 Próximos Passos
+
+- [ ] desenvolvimento da v0.3
+
+---
+
+<details>
+<summary>🔍 Detalhes Técnicos / Trechos de Código / Logs</summary>
+
+### Código de Exemplo / Snippets Principais
+
+```csharp
+// Cole aqui trechos de código relevantes, logs ou configs
+```
+
+</details>
+<br>
+=====================================

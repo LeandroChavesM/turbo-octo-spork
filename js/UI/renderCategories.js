@@ -1,15 +1,11 @@
-import { gameData } from "../data/gameData.js";
-const app = document.querySelector("#app");
-
-const lista = document.createElement("ul");
-
-function mostrar() {
-  for (let i of gameData.regions) {
-    app.appendChild(lista);
-    let regiao = document.createElement("li");
-    regiao.textContent = i.name;
-    lista.appendChild(regiao);
+function desenharLista(lugar, data) {
+  const lista = document.createElement("ul");
+  lugar.appendChild(lista);
+  for (let i of data) {
+    let item = document.createElement("li");
+    item.textContent = i.name;
+    lista.appendChild(item);
   }
 }
 
-export default mostrar;
+export default desenharLista;
