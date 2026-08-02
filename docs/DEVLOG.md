@@ -18,6 +18,7 @@ Criar a base do projeto e preparar o ambiente para iniciar o desenvolvimento das
 - [x] **[SETUP]** Criação do diretório `/css` e do arquivo `main.css`.
 - [x] **[SETUP]** Criação do diretório `/js` e do arquivo `app.js`.
 - [x] **[SETUP]** Conexão do CSS ao HTML e vinculação do script JavaScript configurado como módulo (`type="module"`).
+- [x] **[SETUP]** Criação do diretório `/docs` e dos arquivos `CHANGELOG.md`,`DEVLOG.md` e `padroes.md`.
 
 ---
 
@@ -68,6 +69,118 @@ _Nenhum problema encontrado nesta etapa inicial._
 │
 └───js
         app.js
+```
+
+</details>
+<br>
+=====================================
+
+# Devlog [v0.2] - Lista de Categorias
+
+> **Data:** 01/08/2026  
+> **Horário:** 17:45  
+> **Status:** 🟡 Em andamento
+
+---
+
+## 🎯 Objetivo
+
+Exibir a lista de categorias na tela usando JavaScript.
+
+## ✨ O que foi implementado
+
+- [x] **[SETUP]** Criação do diretório `/js/data` e do arquivo `gameData.js`.
+- [x] **[SETUP]** Criação do diretório `/js/UI` e do arquivo `renderCategories.js`.
+- [x] **[FEATURE]** Criado função para desenhar as regiões em lista no `renderCategories.js`
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **Arquivos com somente uma responsabilidade:** Isso facilita na hora de manutenção.
+
+## 🐛 Desafios & Soluções
+
+**Problema Encontrado**
+
+    Uma pequena dificuldade em pegar o elemento do objeto inves da chave
+
+**Causa Raiz**
+
+    Não estava entendo o funcionamento do for
+
+**Como foi Resolvido**
+
+    Pesquisei como funcionavam o for in e for of e no que se aplicavam, decidindo usar o for of
+
+## 💡 Lições Aprendidas
+
+- Principalmente como usar for in e for of, e estrutura do gameData
+
+## 🔮 Próximos Passos
+
+- [ ] Continuação do desenvolvimento da v0.2
+
+---
+
+<details>
+<summary>🔍 Detalhes Técnicos / Trechos de Código / Logs</summary>
+
+### Código de Exemplo / Snippets Principais
+
+```csharp
+// Cole aqui trechos de código relevantes, logs ou configs
+```
+
+</details>
+<br>
+=====================================
+
+# Devlog [v0.2] - Lista de Categorias
+
+> **Data:** 02/08/2026  
+> **Horário:** 8:00  
+> **Status:** 🟢 Concluído
+
+---
+
+## 🎯 Objetivo
+
+Exibir a lista de categorias na tela usando JavaScript.
+
+## ✨ O que foi implementado
+
+- [x] **[REFACTOR]** Refatorando a função do `renderCategories.js` para deixar mais genérica.
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **Função genérica:** Isso facilita na hora de manutenção, e posso usar futuramente em outro lugar.
+
+## 🐛 Desafios & Soluções
+
+**Problema Encontrado**
+
+    Nenhum problema encontrado nesta etapa
+
+**Causa Raiz**
+
+**Como foi Resolvido**
+
+## 💡 Lições Aprendidas
+
+- Usar funções genéricas ajudam no decorrer do projeto, evita redundancia e mantém a lógica em um lugar só.
+
+## 🔮 Próximos Passos
+
+- [ ] desenvolvimento da v0.3
+
+---
+
+<details>
+<summary>🔍 Detalhes Técnicos / Trechos de Código / Logs</summary>
+
+### Código de Exemplo / Snippets Principais
+
+```csharp
+// Cole aqui trechos de código relevantes, logs ou configs
 ```
 
 </details>
