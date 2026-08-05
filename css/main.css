@@ -1,0 +1,23 @@
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+#app{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+#sidebar{
+    margin: 10px;
+}
+
+#main-container{
+    background-color: antiquewhite;
+    width: 80%;
+    height: 50vh;
+    
+}

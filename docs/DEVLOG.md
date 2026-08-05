@@ -144,7 +144,7 @@ Exibir a lista de categorias na tela usando JavaScript.
 
 ## 🎯 Objetivo
 
-Exibir a lista de categorias na tela usando JavaScript.
+Exibir a lista de "categorias" na tela usando JavaScript.
 
 ## ✨ O que foi implementado
 
@@ -167,6 +167,60 @@ Exibir a lista de categorias na tela usando JavaScript.
 ## 💡 Lições Aprendidas
 
 - Usar funções genéricas ajudam no decorrer do projeto, evita redundancia e mantém a lógica em um lugar só.
+
+## 🔮 Próximos Passos
+
+- [ ] desenvolvimento da v0.3
+
+---
+
+<details>
+<summary>🔍 Detalhes Técnicos / Trechos de Código / Logs</summary>
+
+### Código de Exemplo / Snippets Principais
+
+```csharp
+// Cole aqui trechos de código relevantes, logs ou configs
+```
+
+</details>
+<br>
+=====================================
+
+# Devlog [v0.3] - Navegação Categoria → Sucesso
+
+> **Data:** 05/08/2026  
+> **Horário:** 8:20  
+> **Status:** 🟡 Em andamento
+
+---
+
+## 🎯 Objetivo
+
+Permitir clicar em uma "categoria" e ver a lista de sucessos.
+
+## ✨ O que foi implementado
+
+- [x] **[SETUP]** Criando o arquivo `state.js`.
+- [x] **[SETUP]** Criando o arquivo `renderAchievements.js`.
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **Função genérica:** Isso facilita na hora de manutenção, e posso usar futuramente em outro lugar.
+
+## 🐛 Desafios & Soluções
+
+**Problema Encontrado**
+
+    Nenhum problema encontrado nesta etapa
+
+**Causa Raiz**
+
+**Como foi Resolvido**
+
+## 💡 Lições Aprendidas
+
+- Usar um arquivo para armazenar as mudanças de estado do site deixa mais prático e organizado.
 
 ## 🔮 Próximos Passos
 
