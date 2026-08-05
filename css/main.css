@@ -1,23 +1,27 @@
-*{
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-sizing: border-box;
+  color: aliceblue;
 }
 
-#app{
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
+body {
+  background-color: black;
 }
 
-#sidebar{
-    margin: 10px;
+#app {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 }
 
-#main-container{
-    background-color: antiquewhite;
-    width: 80%;
-    height: 50vh;
-    
+#sidebar {
+  margin: 10px;
+}
+
+#main-container {
+  background-color: gray;
+  width: 80%;
+  height: 50vh;
 }

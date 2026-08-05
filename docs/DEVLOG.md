@@ -201,30 +201,41 @@ Permitir clicar em uma "categoria" e ver a lista de sucessos.
 
 ## ✨ O que foi implementado
 
-- [x] **[SETUP]** Criando o arquivo `state.js`.
-- [x] **[SETUP]** Criando o arquivo `renderAchievements.js`.
+- [x] **[SETUP]** Introduzido um gerenciador de estados `state.js`.
+- [x] **[SETUP]** Inicio da renderização de achievements `renderAchievements.js`.
+- [x] **[SETUP]** Criação da camada de `handlers`.
+- [x] **[SETUP]** Introduzido um handle para pegar região atual `selectedRegion.js`.
 
 ## 🧠 Decisões de Arquitetura & Design
 
-- **Função genérica:** Isso facilita na hora de manutenção, e posso usar futuramente em outro lugar.
+- **Evento na hora da criação:** O evento de clique é registrado durante a criação dos elementos da lista, pois é nesse momento que a associação entre elemento e região já é conhecida
 
 ## 🐛 Desafios & Soluções
 
 **Problema Encontrado**
 
-    Nenhum problema encontrado nesta etapa
+    Dificuldade em fazer a ''aplicação'' atualizar conforme o estado muda, como atualizar os achievements após alterar a região selecionada.
 
 **Causa Raiz**
 
+    Inicialmente foi assumido que mudar o state faria outras partes da aplicação perceberem a mudança automaticamente, mas não é assim que funciona o JS vanilla.
+
 **Como foi Resolvido**
+
+    Investigação em andamento. A principal hipótese é criar um fluxo onde a aplicação coordene a atualização da interface após mudanças no estado.
 
 ## 💡 Lições Aprendidas
 
-- Usar um arquivo para armazenar as mudanças de estado do site deixa mais prático e organizado.
+- Ter uma variavel que guarda os estados da aplicação ajuda a escalar o projeto.
+- Alterar uma propriedade do state não atualiza a interface.
+- Responsabilidades dos arquivos/funções são importantes de se pensar. No fim ficou claro que vale a pena pensar em perguntas como "Quem conhece o DOM? Quem conhece o estado? Quem apenas renderiza? Quem coordena a aplicação?
+- Não procurar uma informação que já possuo
 
 ## 🔮 Próximos Passos
 
-- [ ] desenvolvimento da v0.3
+- Definir o fluxo de atualização da interface após mudanças no state.
+- Conectar renderAchievements ao fluxo da aplicação.
+- Finalizar a navegação entre regiões e achievements.
 
 ---
 
