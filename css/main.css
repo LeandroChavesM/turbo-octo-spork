@@ -1,0 +1,27 @@
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-sizing: border-box;
+  color: aliceblue;
+}
+
+body {
+  background-color: black;
+}
+
+#app {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+#sidebar {
+  margin: 10px;
+}
+
+#main-container {
+  background-color: gray;
+  width: 80%;
+  height: 50vh;
+}
