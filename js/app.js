@@ -8,6 +8,11 @@ const mainContainer = document.querySelector("#main-container");
 const data = gameData.regions;
 
 desenharLista(sidebar, data);
-if (state.currentRegion) {
-  desenharAchievements(mainContainer);
+
+function renderInterface() {
+  
+    desenharAchievements(mainContainer);
+  
 }
+
+export default renderInterface;
