@@ -1,6 +1,6 @@
 import handleSelectedRegion from "../handlers/selectedRegion.js";
 
-function desenharLista(lugar, data) {
+function renderList(lugar, data) {
   const lista = document.createElement("ul");
   lugar.appendChild(lista);
   for (let i of data) {
@@ -12,4 +12,4 @@ function desenharLista(lugar, data) {
   }
 }
 
-export default desenharLista;
+export default renderList;
