@@ -316,8 +316,8 @@ Permitir clicar em uma "categoria" e ver a lista de sucessos.
 
 # Devlog [v0.3] - Navegação Categoria → Sucesso
 
-> **Data:** 07/08/2026  
-> **Horário:** 9:00  
+> **Data:** 07/08/2026
+> **Horário:** 9:00
 > **Status:** 🟢 Concluído
 
 ---
@@ -326,35 +326,45 @@ Permitir clicar em uma "categoria" e ver a lista de sucessos.
 
 Permitir clicar em uma "categoria" e visualizar a lista de sucessos correspondente à região selecionada.
 
+Além da implementação da navegação, foi realizada uma pequena refatoração para melhorar a separação de responsabilidades entre renderização, eventos, estado e coordenação da aplicação.
+
 ## ✨ O que foi implementado
 
 - [x] **[SETUP]** Criado o `state.js` para armazenar o estado atual da aplicação.
 - [x] **[SETUP]** Criado o `renderAchievements.js` para renderizar os sucessos da região selecionada.
 - [x] **[SETUP]** Criada a pasta `handlers` para separar a lógica de interação dos elementos.
-- [x] **[FEATURE]** Criado o `selectedRegion.js` para tratar a seleção de uma região.
+- [x] **[FEATURE]** Criado o `selectedItem.js` para tratar a seleção de um item.
 - [x] **[FEATURE]** Implementado o armazenamento do `id` da região selecionada em `state.currentRegion`.
 - [x] **[FEATURE]** Implementado o fluxo de atualização da interface após a seleção de uma região.
 - [x] **[FEATURE]** Ao clicar em uma região, seus respectivos sucessos são renderizados no `main-container`.
+- [x] **[REFACTOR]** Transformado o `renderList()` em uma função genérica, recebendo os dados e o callback como parâmetros.
+- [x] **[REFACTOR]** Criado o `renderRegions()` como uma função específica para preparar os dados das regiões e utilizar o `renderList()`.
+- [x] **[REFACTOR]** Removida a dependência direta do handler em relação ao `app.js`.
+- [x] **[REFACTOR]** Utilizado callback para permitir que o handler execute a ação definida pelo módulo que o chamou.
 
 ## 🧠 Decisões de Arquitetura & Design
 
 - **Estado separado dos dados:** O `state` armazena informações que representam o estado atual da aplicação, enquanto os dados das regiões e seus sucessos permanecem no `gameData`.
 
-- **Identificação por \*\***`id`\***\*:** O `state.currentRegion` armazena apenas o `id` da região selecionada em vez de guardar o objeto completo. Dessa forma, o `gameData` continua sendo a fonte dos dados da região.
+- **Identificação por `id`:** O `state.currentRegion` armazena apenas o `id` da região selecionada em vez de guardar o objeto completo. Dessa forma, o `gameData` continua sendo a fonte dos dados da região.
 
 - **Evento na criação:** O evento de clique é registrado durante a criação de cada elemento da lista, pois nesse momento a associação entre o elemento e a região já é conhecida.
 
 - **Atualização explícita da interface:** Como o JavaScript Vanilla não possui reatividade automática, a alteração do `state` é seguida explicitamente pela atualização da interface.
 
-- **`app.js`\*\*** como coordenador:\*\* Foi criada uma função no `app.js` responsável por coordenar a atualização da interface e chamar os renders necessários.
+- **`app.js` como coordenador:** O `app.js` continua responsável por coordenar a atualização da interface e definir quais renderizações devem ocorrer.
+
+- **`renderList()` como função genérica:** A função foi mantida responsável pela criação da lista e dos seus itens, sem assumir que os dados representam necessariamente regiões. O comportamento após a seleção é recebido através de um callback.
+
+- **`renderRegions()` como camada específica:** Foi criada uma função específica para regiões. Ela conhece a localização dos dados (`gameData.regions`) e utiliza o `renderList()` para realizar a criação da interface.
+
+- **Callback no handler:** O handler não precisa conhecer `renderAchievements()` ou `app.js`. Ele apenas atualiza o estado e executa a função recebida como callback. Isso reduz o acoplamento entre os módulos.
 
 ## 🐛 Desafios & Soluções
 
-### Problema Encontrado
+### Problema Encontrado 1
 
 Dificuldade em fazer a aplicação atualizar os achievements após a alteração da região selecionada.
-
-Inicialmente, foi tentado utilizar uma condição que verificasse `state.currentRegion` para decidir quando renderizar os achievements.
 
 ### Causa Raiz
 
@@ -369,13 +379,64 @@ Foi criado no `app.js` um ponto de coordenação para atualização da interface
 O fluxo passou a ser:
 
 1. O usuário clica em uma região.
-2. `handleSelectedRegion` identifica a região selecionada.
+2. O handler identifica a região selecionada.
 3. `state.currentRegion` recebe o `id` da região.
-4. `renderInterface()` é chamado.
+4. Uma função de atualização é executada.
 5. `renderAchievements()` consulta o novo `state.currentRegion`.
 6. Os achievements correspondentes são renderizados no `main-container`.
 
-Dessa forma, não foi necessário utilizar `location.reload()` ou criar um sistema próprio de reatividade.
+---
+
+### Problema Encontrado 2
+
+O handler precisava solicitar a atualização da interface após alterar o estado, mas importar diretamente o `app.js` criava uma dependência circular entre os módulos.
+
+### Causa Raiz
+
+O handler conhecia diretamente o módulo responsável por coordenar a aplicação. Isso fazia com que a estrutura de dependências se aproximasse de um ciclo entre `app.js`, renderizadores e handlers.
+
+Além disso, o handler não precisava saber especificamente qual render deveria ser executado após o clique.
+
+### Como foi Resolvido
+
+Foi utilizado um **callback**.
+
+O `app.js` fornece a função que deve ser executada, passando-a através dos renderizadores até o handler.
+
+O handler passou a ter uma responsabilidade mais simples:
+
+1. receber o item e o objeto correspondente;
+2. registrar o evento de clique;
+3. atualizar o `state`;
+4. executar o callback recebido.
+
+Dessa forma, o handler não precisa importar o `app.js` nem conhecer `renderAchievements()`.
+
+---
+
+### Problema Encontrado 3
+
+O `renderList()` começou a ficar associado especificamente ao comportamento das regiões.
+
+### Causa Raiz
+
+A função inicialmente era utilizada para criar listas de forma genérica, mas passou a associar diretamente um handler específico de regiões aos elementos criados.
+
+Isso faria com que uma função que deveria ser reutilizável começasse a depender do tipo de dado que estava renderizando.
+
+### Como foi Resolvido
+
+O comportamento foi transformado em um parâmetro da função.
+
+O `renderList()` passou a receber:
+
+```js
+renderList(lugar, data, callback);
+```
+
+Assim, a função continua responsável por criar a lista, enquanto quem a utiliza define o comportamento que deve acontecer quando um item for selecionado.
+
+Foi criada a função `renderRegions()` para fornecer ao `renderList()` os dados e o comportamento específicos das regiões.
 
 ## 💡 Lições Aprendidas
 
@@ -383,59 +444,82 @@ Dessa forma, não foi necessário utilizar `location.reload()` ou criar um siste
 - Alterar uma propriedade do `state` não atualiza a interface automaticamente.
 - Em JavaScript Vanilla, a atualização da interface precisa ser coordenada e executada explicitamente.
 - Estado e interface são responsabilidades diferentes: o `state` armazena informações, enquanto as funções de renderização utilizam essas informações para atualizar o DOM.
-- O local onde uma informação já está disponível deve ser considerado ao definir responsabilidades. Não é necessário procurar novamente uma região que já está associada ao elemento durante sua criação.
+- O local onde uma informação já está disponível deve ser considerado ao definir responsabilidades.
 - Separar a lógica de interação em handlers ajuda a evitar que toda a lógica fique concentrada nas funções de renderização.
+- Um callback permite passar uma função para ser executada posteriormente, sem que o módulo que recebe essa função precise conhecer sua implementação.
+- Passar uma função e executar uma função são coisas diferentes. `minhaFuncao` passa a função, enquanto `minhaFuncao()` executa a função imediatamente.
+- Uma função genérica deve possuir uma responsabilidade realmente genérica. Quando uma parte do comportamento varia conforme o contexto, ela pode ser recebida através de parâmetros.
 - Ao organizar os módulos, é importante observar não apenas se o código funciona, mas também quais módulos dependem uns dos outros e quem deve coordenar o fluxo da aplicação.
 
 ## ⚠️ Dívidas Técnicas / Pontos para Revisar
 
-- `selectedRegion.js` atualmente depende de `app.js` para solicitar a atualização da interface. Essa relação funciona na V0.3, mas pode ser revisada conforme a aplicação crescer.
-- `renderList()` atualmente também associa `handleSelectedRegion` aos itens que renderiza. Com a evolução do projeto, será necessário avaliar se essa função continua sendo genérica o suficiente para diferentes tipos de listas.
-- Avaliar futuramente uma forma de organizar a atualização da interface que reduza o acoplamento entre handlers e `app.js`.
+- Avaliar futuramente se o nome e a organização dos arquivos de renderização continuam representando bem suas responsabilidades conforme novas telas e listas forem adicionadas.
+- Verificar se o `renderList()` continua sendo uma abstração adequada conforme novos tipos de dados forem adicionados ao projeto.
+- Manter atenção às dependências entre `app.js`, handlers e funções de renderização para evitar o retorno de dependências circulares.
+- A interface inicial ainda será refinada posteriormente com a implementação da categoria/região **Geral**.
 
 ## 🔮 Próximos Passos
 
 - Iniciar a próxima versão do roadmap.
-- Avaliar a arquitetura atual após a implementação da V0.3.
-- Revisar as dependências entre `app.js`, handlers e funções de renderização conforme novas funcionalidades forem adicionadas.
+- Continuar expandindo a estrutura de `gameData` conforme novos conteúdos forem adicionados.
+- Avaliar a arquitetura atual durante a implementação da próxima versão, evitando abstrações antes que sejam necessárias.
+- Implementar futuramente a categoria/região **Geral**, que funcionará como a página inicial da interface de sucessos.
 
 ---
 
 <details>
-<summary>🔍 Detalhes Técnicos / Trechos de Código / Logs</summary>
+<summary> 🔍 Detalhes Técnicos / Trechos de Código / Logs </summary>
 
 ### Código de Exemplo / Snippets Principais
 
+**Handler utilizando callback:**
+
 ```js
-function handleSelectedRegion(item, region) {
+function handleSelectedItem(item, object, callback) {
   item.addEventListener("click", () => {
-    state.currentRegion = region.id;
-    renderInterface();
+    state.currentRegion = object.id;
+    callback();
   });
 }
 ```
 
-```js
-function renderInterface() {
-  renderAchievements(mainContainer);
-}
-```
+**Renderer genérico:**
 
 ```js
-function renderAchievements(lugar) {
+function renderList(lugar, data, callback) {
+  const lista = document.createElement("ul");
+  lugar.appendChild(lista);
+
   for (let i of data) {
-    if (state.currentRegion === i.id) {
-      let ach = i.achievements;
-      lugar.innerHTML = "";
+    let item = document.createElement("li");
 
-      if (ach) {
-        renderList(lugar, ach);
-      }
-    }
+    handleSelectedItem(item, i, callback);
+
+    item.textContent = i.name;
+    lista.appendChild(item);
   }
 }
 ```
 
-</details>
+**Renderer específico para regiões:**
 
-# <br>
+```js
+function renderRegions(lugar, callback) {
+  const data = gameData.regions;
+
+  renderList(lugar, data, callback);
+}
+```
+
+**Coordenação no `app.js`:**
+
+```js
+renderRegions(sidebar, updateInterface);
+
+function updateInterface() {
+  renderAchievements(mainContainer);
+}
+```
+
+</details>
+<br>
