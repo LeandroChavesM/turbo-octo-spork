@@ -1,5 +1,5 @@
 import { gameData } from "../data/gameData.js";
-import renderList from "./renderCategories.js";
+import renderList from "./renderList.js";
 import { state } from "../state.js";
 
 const data = gameData.regions;
