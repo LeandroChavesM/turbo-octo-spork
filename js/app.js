@@ -1,4 +1,5 @@
 import renderAchievements from "./UI/renderAchievements.js";
+import renderObjectives from "./UI/renderObjectives.js";
 import renderRegions from "./UI/renderRegions.js";
 
 const sidebar = document.querySelector("#sidebar");
@@ -8,6 +9,7 @@ renderRegions(sidebar, updateInterface);
 
 function updateInterface() {
   renderAchievements(mainContainer);
+  renderObjectives(mainContainer);
 }
 
 export default updateInterface;

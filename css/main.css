@@ -24,4 +24,17 @@ body {
   background-color: gray;
   width: 90%;
   height: 50vh;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+
+}
+
+#obj-container {
+  align-self: center;
+  background-color: rgb(60, 59, 59);
+  width: 30%;
+  position: absolute;
+  height: 50%;
+  bottom: 0;
 }
