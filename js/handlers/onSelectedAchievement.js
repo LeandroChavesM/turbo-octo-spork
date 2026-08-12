@@ -1,4 +1,4 @@
-  import { state } from "../state.js";
+import { state } from "../state.js";
 
 function onSelectedAchievement(item, object, callback) {
   item.addEventListener("click", () => {

@@ -31,7 +31,9 @@ export const gameData = {
     {
       id: "astrub",
       name: "Astrub",
-      achievements: [{ id: "ach_ast_001", name: "Aventureiro Périplo" }],
+      achievements: [
+        { id: "ach_ast_001", name: "Aventureiro Périplo", objectives: [] },
+      ],
     },
   ],
 };

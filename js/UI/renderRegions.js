@@ -4,7 +4,6 @@ import onSelectedRegion from "../handlers/onSelectedRegion.js";
 
 function renderRegions(lugar, callback) {
   const data = gameData.regions;
-  
   renderList(lugar, data, onSelectedRegion, callback);
 }
 
