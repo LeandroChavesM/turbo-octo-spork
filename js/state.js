@@ -1,4 +1,4 @@
 export const state = {
-    currentRegion: "",
-
-}
+  currentRegion: "",
+  currentAchievement: "",
+};

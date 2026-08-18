@@ -1,10 +1,11 @@
 import { state } from "../state.js";
 
-function handleSelectedItem(item, object, callback) {
+function onSelectedRegion(item, object, callback) {
   item.addEventListener("click", () => {
     state.currentRegion = object.id;
+    state.currentAchievement = "";
     callback();
   });
 }
 
-export default handleSelectedItem;
+export default onSelectedRegion;
