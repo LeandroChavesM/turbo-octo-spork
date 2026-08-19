@@ -1,4 +1,4 @@
-# 🚀 Devlog [v0.1] - Estrutura Inicial do Projeto
+# 🚀 Devlog #1 [v0.1] - Estrutura Inicial do Projeto
 
 > **Data:** 01/08/2026  
 > **Horário:** 16:12  
@@ -75,7 +75,7 @@ _Nenhum problema encontrado nesta etapa inicial._
 <br>
 =====================================
 
-# Devlog [v0.2] - Lista de Categorias
+# Devlog #2 [v0.2] - Lista de Categorias
 
 > **Data:** 01/08/2026  
 > **Horário:** 17:45  
@@ -134,7 +134,7 @@ Exibir a lista de categorias na tela usando JavaScript.
 <br>
 =====================================
 
-# Devlog [v0.2] - Lista de Categorias
+# Devlog #3 [v0.2] - Lista de Categorias
 
 > **Data:** 02/08/2026  
 > **Horário:** 8:00  
@@ -187,7 +187,7 @@ Exibir a lista de "categorias" na tela usando JavaScript.
 <br>
 =====================================
 
-# Devlog [v0.3] - Navegação Categoria → Sucesso
+# Devlog #4 [v0.3] - Navegação Categoria → Sucesso
 
 > **Data:** 05/08/2026  
 > **Horário:** 8:20  
@@ -252,7 +252,7 @@ Permitir clicar em uma "categoria" e ver a lista de sucessos.
 <br>
 =====================================
 
-# Devlog [v0.3] - Navegação Categoria → Sucesso
+# Devlog #5 [v0.3] - Navegação Categoria → Sucesso
 
 > **Data:** 06/08/2026  
 > **Horário:** 9:00  
@@ -314,10 +314,10 @@ Permitir clicar em uma "categoria" e ver a lista de sucessos.
 <br>
 =====================================
 
-# Devlog [v0.3] - Navegação Categoria → Sucesso
+# Devlog #6 [v0.3] - Navegação Categoria → Sucesso
 
-> **Data:** 07/08/2026
-> **Horário:** 9:00
+> **Data:** 07/08/2026  
+> **Horário:** 9:00  
 > **Status:** 🟢 Concluído
 
 ---
@@ -519,6 +519,171 @@ renderRegions(sidebar, updateInterface);
 function updateInterface() {
   renderAchievements(mainContainer);
 }
+```
+
+</details>
+<br>
+
+# Devlog #7 [v0.4] - Navegação Sucesso → Objetivo + Status do Objetivo
+
+> **Data:** 18/08/2026  
+> **Status:** 🟡 Em andamento
+
+---
+
+## 🎯 Objetivo
+
+Permitir clicar em um "sucesso" (achievement) e visualizar seus objetivos correspondentes. Iniciar o rascunho de um `userData`, separado do `gameData`, para armazenar o progresso do jogador (status de cada objetivo).
+
+## ✨ O que foi implementado
+
+- [x] **[FEATURE]** Criado `renderObjectives.js` para renderizar os objetivos do sucesso selecionado, em um container próprio (`#obj-container`), separado do `#main-container`.
+- [x] **[FEATURE]** Criado `onSelectedAchievement.js`, handler específico para a seleção de um sucesso, seguindo o mesmo padrão de callback já usado em `onSelectedRegion.js`.
+- [x] **[FEATURE]** Implementado o armazenamento do `id` do sucesso selecionado em `state.currentAchievement`.
+- [x] **[FEATURE]** Ao trocar de região, `state.currentAchievement` é resetado antes do callback, evitando que objetivos de uma região antiga permaneçam visíveis.
+- [x] **[REFACTOR]** `renderList()` passou a aceitar um segundo callback (`callback2`), repassado a cada handler, permitindo que o item selecionado (região ou sucesso) dispare a atualização da interface.
+- [x] **[DRAFT]** Rascunho inicial de `userData.js`, para representar o progresso do jogador separado dos dados fixos do jogo.
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **Container próprio para objetivos:** Optado por renderizar objetivos em um elemento separado do `main-container`, evitando sobreposição visual com a lista de sucessos.
+
+- **`renderList()` continua genérica de propósito:** Ao surgir a necessidade de um checkbox por objetivo (elemento que região e sucesso não precisam), foi decidido **não** forçar essa necessidade dentro de `renderList()` com condicionais internas. Em vez disso, planeja-se um renderer específico para objetivos, mantendo `renderList()` livre de `if`s sobre o tipo de dado.
+
+- **Handler genérico rejeitado, por ora:** Foi cogitado tornar `handleSelectedItem` totalmente genérico (recebendo qual propriedade do `state` atualizar). Decisão: manter handlers específicos (`onSelectedRegion`, `onSelectedAchievement`), pequenos e duplicados, por serem mais simples e legíveis do que uma abstração genérica prematura para funções de 1-2 linhas.
+
+- **`state` não deveria "vazar" para os handlers via parâmetro:** Foi cogitado passar `state` como parâmetro (em vez de importar) para tornar o handler mais genérico. Concluído que isso não resolve o problema real (o acoplamento está em _qual propriedade_ é alterada, não em _como_ o `state` chega até a função) — mantido o `import` direto.
+
+- **Reset de estado em vez de limpeza manual do DOM:** Ao invés de propagar uma referência do elemento HTML (`objContainer`) por múltiplas camadas (`renderRegions` → `renderList` → `onSelectedRegion`) só para limpá-lo manualmente ao trocar de região, resolvido resetando `state.currentAchievement = ""` no próprio handler. Como `renderObjectives()` já limpa e redesenha a cada `updateInterface()`, o container passa a esvaziar "sozinho" quando nenhum sucesso corresponde ao estado atual.
+
+- **`userData` separado do `gameData`:** Confirmada a decisão (alinhada à documentação) de nunca gravar progresso do jogador dentro dos objetos do `gameData`. Rascunho inicial optou por objeto indexado por `id` (`userData.objectives[id] = status`) em vez de array de objetos, por permitir acesso direto (`userData.objectives[algumId]`) sem precisar percorrer uma lista inteira a cada consulta.
+
+- **Escopo reduzido do `userData` por enquanto:** A documentação (`10-userdata.md`) descreve uma estrutura completa (perfis, notas, favoritos, timestamps). Decisão consciente de **não** implementar tudo de uma vez — começar só com o essencial para o checkbox funcionar, e expandir quando a persistência (localStorage) e perfis forem de fato implementados.
+
+## 🐛 Desafios & Soluções
+
+### Problema Encontrado 1
+
+Ao clicar em um objetivo, a aplicação quebrava com `TypeError: data is not iterable`.
+
+### Causa Raiz
+
+Dentro de `renderObjectives()`, o código já percorria manualmente a lista de objetivos (`for (let k of obj)`) e, dentro desse loop, chamava `renderList(lugar, k, ...)` passando um **item único** (`k`) no lugar da **lista inteira** (`obj`) que `renderList()` espera para fazer seu próprio `for...of` interno.
+
+### Como foi Resolvido
+
+Removido o loop manual redundante; `renderList()` passou a receber a lista `obj` diretamente, já que ela mesma é responsável por iterar sobre os itens.
+
+---
+
+### Problema Encontrado 2
+
+Clicar em um sucesso (achievement) não atualizava a interface para mostrar os objetivos.
+
+### Causa Raiz
+
+`renderAchievements()` chamava `renderList(lugar, ach, onSelectedAchievement, () => {})`, passando uma função vazia como segundo callback, em vez de repassar a função que de fato atualiza a interface (`updateInterface`).
+
+### Como foi Resolvido
+
+O callback vazio foi substituído pela referência correta, permitindo que `onSelectedAchievement` dispare a atualização da interface após alterar `state.currentAchievement`, no mesmo padrão já usado para regiões.
+
+---
+
+### Problema Encontrado 3
+
+`renderObjectives()` estava desenhando os objetivos de **todos** os sucessos de **todas** as regiões, mesmo sem nenhum sucesso selecionado — e, pior, alterando `state.currentAchievement` sozinha durante a renderização.
+
+### Causa Raiz
+
+A condição de filtro estava escrita como atribuição, não comparação:
+
+```js
+if ((state.currentAchievement = j.id)) {
+```
+
+Um único `=` atribui `j.id` a `state.currentAchievement` e retorna esse valor como resultado da expressão. Como o `id` é sempre uma string não vazia (truthy), a condição era sempre verdadeira — independente de qual sucesso estava selecionado — e ainda corrompia o `state` a cada execução.
+
+### Como foi Resolvido
+
+Corrigido para comparação estrita:
+
+```js
+if (state.currentAchievement === j.id) {
+```
+
+---
+
+### Problema Encontrado 4
+
+Ao trocar de região, o container de objetivos mantinha o conteúdo do sucesso selecionado anteriormente (de outra região).
+
+### Causa Raiz
+
+`state.currentAchievement` não era resetado ao selecionar uma nova região, então `renderObjectives()` continuava encontrando correspondência com um sucesso que não pertencia mais à região atual.
+
+### Como foi Resolvido
+
+`onSelectedRegion` passou a resetar `state.currentAchievement = ""` antes de disparar o callback de atualização, eliminando a necessidade de limpar o DOM manualmente por fora.
+
+## 💡 Lições Aprendidas
+
+- Um único `=` dentro de um `if` é sintaticamente válido em JavaScript (atribuição, não comparação) e não gera erro — o bug fica silencioso e só aparece pelo comportamento incorreto.
+- "Onde" um dado chega (import vs. parâmetro) não é o mesmo eixo de "quão genérica" uma função é — o que importa é o que a função faz com o dado, não como ele chegou até ela.
+- Passar referências de elementos do DOM através de múltiplas camadas de funções para resolver um problema de exibição costuma ser sintoma de um problema de estado não resolvido na origem.
+- Nem toda duplicação (dois handlers pequenos parecidos) precisa virar abstração — abstrair uma função de 1-2 linhas pode custar mais em complexidade do que economiza em repetição.
+- Dado de progresso do jogador (`userData`) e dado fixo do jogo (`gameData`) devem permanecer em estruturas completamente separadas, mesmo quando é tentador gravar direto no objeto que já está "na mão".
+
+## ⚠️ Dívidas Técnicas / Pontos para Revisar
+
+- Finalizar o handler do checkbox (`onCheckboxCheck`) para gravar o status no `userData` (por `id`), em vez de mutar o objeto do `gameData`.
+- Definir os valores possíveis de status agora usados (ex.: `"pendente"` / `"concluido"`) e manter consistência com a documentação (`pending` / `in_progress` / `completed`) — decidir se simplifica para dois estados ou adota os três.
+- `userData` ainda não persiste (localStorage) nem tem estrutura de perfis — implementar quando essas features entrarem no roadmap.
+- Reavaliar, conforme novos tipos de item apareçam (ex.: quests), se o padrão de handlers específicos + `renderList()` genérica continua escalando bem, ou se em algum ponto compensa introduzir alguma generalização.
+
+## 🔮 Próximos Passos
+
+- Finalizar a lógica do checkbox e ligação com `userData`.
+- Fazer o checkbox nascer já marcado/desmarcado de acordo com o status salvo no `userData`.
+- Continuar o roadmap da v0.4 conforme `docs/docsProjeto/03-roadmap.md`.
+
+---
+
+<details>
+<summary> 🔍 Detalhes Técnicos / Trechos de Código / Logs </summary>
+
+### Código de Exemplo / Snippets Principais
+
+**Bug de atribuição vs. comparação:**
+
+```js
+// Antes (bug)
+if ((state.currentAchievement = j.id)) { ... }
+
+// Depois
+if (state.currentAchievement === j.id) { ... }
+```
+
+**Reset de estado ao trocar de região:**
+
+```js
+function onSelectedRegion(item, object, callback) {
+  item.addEventListener("click", () => {
+    state.currentRegion = object.id;
+    state.currentAchievement = "";
+    callback();
+  });
+}
+```
+
+**Rascunho de `userData.js`:**
+
+```js
+export const userData = {
+  objectives: {
+    // "obj_inc_001": "pendente"
+  },
+};
 ```
 
 </details>
