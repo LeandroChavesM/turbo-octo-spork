@@ -1,22 +1,27 @@
 import { gameData } from "../data/gameData.js";
-import renderList from "./renderList.js";
+import onCheckboxCheck from "../handlers/onCheckboxCheck.js";
 import { state } from "../state.js";
 
 const data = gameData.regions;
 
-function renderObjectives(lugar) {
+function renderObjectives(lugar, callback) {
   lugar.innerHTML = "";
   for (let i of data) {
     for (let j of i.achievements) {
       if (state.currentAchievement === j.id) {
         let obj = j.objectives;
-        renderList(
-          lugar,
-          obj,
-          () => {},
-          () => {}
-        );
-      } 
+
+        const lista = document.createElement("ul");
+        lugar.appendChild(lista);
+        for (let i of obj) {
+          const checkbox = document.createElement("input")
+          let item = document.createElement("li");
+          onCheckboxCheck(checkbox, i);
+          item.textContent = i.name;
+          item.style.cursor = "pointer";
+          lista.appendChild(item);
+        }
+      }
     }
   }
 }
