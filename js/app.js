@@ -12,7 +12,7 @@ renderRegions(sidebar, updateInterface);
 
 function updateInterface() {
   renderAchievements(mainContainer, updateInterface);
-  renderObjectives(objContainer);
+  renderObjectives(objContainer, onCheckboxCheck);
 }
 
 export default updateInterface;

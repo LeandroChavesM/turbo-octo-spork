@@ -1,6 +1,6 @@
 import { gameData } from "../data/gameData.js";
-import onCheckboxCheck from "../handlers/onCheckboxCheck.js";
 import { state } from "../state.js";
+import renderCheckboxItem from "./renderCheckbox.js";
 
 const data = gameData.regions;
 
@@ -14,15 +14,7 @@ function renderObjectives(lugar, callback) {
         const lista = document.createElement("ul");
         lugar.appendChild(lista);
         for (let i of obj) {
-          console.log(j.id);
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          let item = document.createElement("li");
-          onCheckboxCheck(checkbox, j.id);
-          item.textContent = i.name;
-          item.style.cursor = "pointer";
-          lista.appendChild(item);
-          lista.appendChild(checkbox);
+          renderCheckboxItem(lista, i, callback);
         }
       }
     }
