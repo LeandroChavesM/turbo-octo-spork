@@ -899,3 +899,79 @@ li:has(input[type="checkbox"]:checked) {
 
 </details>
 <br>
+
+# Devlog #9 [v0.5] - Persistência com LocalStorage
+
+> **Data:** 29/08/2026  
+> **Status:** 🟢 Concluído
+
+---
+
+## 🎯 Objetivo
+
+Fazer o progresso do jogador (`userData`) sobreviver a um reload da página, usando `localStorage`.
+
+## ✨ O que foi implementado
+
+- [x] **[SETUP]** Criada a pasta `js/services/`, para infraestrutura da aplicação (diferente de `js/data/`, reservada para os dados em si).
+- [x] **[FEATURE]** Criado `services/storage.js`, com `saveUserData()` e `loadUserData()`.
+- [x] **[FEATURE]** `saveUserData()` serializa `userData` com `JSON.stringify` e grava em `localStorage`.
+- [x] **[FEATURE]** `loadUserData()` lê e faz `JSON.parse` do que estiver salvo, substituindo `userData.objectives` quando existir algo salvo.
+- [x] **[FEATURE]** `saveUserData()` conectado ao `change` do checkbox, em `onCheckboxCheck.js`.
+- [x] **[FEATURE]** `loadUserData()` chamado uma vez, na inicialização, em `app.js`.
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **`storage.js` não sabe de UI:** a função não conhece checkbox, achievement ou região — só sabe ler/escrever `userData` no `localStorage`. Quem decide _quando_ chamar `saveUserData()` é quem já é dono da mudança (`onCheckboxCheck`), no mesmo padrão de responsabilidade usado até aqui.
+
+- **Substituir propriedade, não o objeto inteiro:** como `userData` é `export const`, não é possível reatribuir o objeto inteiro. `loadUserData()` substitui `userData.objectives` (uma propriedade dele), do mesmo jeito que já se faz com `state.currentRegion = x`.
+
+- **Não sobrescrever quando não há nada salvo:** `loadUserData()` só substitui `userData.objectives` se `localStorage` de fato tiver algo salvo (`JSON.parse` retorna `null` na primeira vez). Caso contrário, o `userData` inicial do próprio arquivo é mantido como está.
+
+- **`storage.js` em `services/`, não em `data/`:** seguida a sugestão do roadmap de separar dados (`gameData`, `userData`) de infraestrutura (leitura/escrita em `localStorage`), já pensando na v0.6 (perfis), que também vai precisar de uma camada de serviço própria.
+
+## 🐛 Desafios & Soluções
+
+Nenhum bug relevante nessa versão — a implementação seguiu direto a partir das decisões já consolidadas nas versões anteriores (separação `gameData`/`userData`, estrutura plana indexada por `id`).
+
+## 💡 Lições Aprendidas
+
+- `localStorage` só armazena texto (string); qualquer objeto precisa passar por `JSON.stringify` antes de salvar e `JSON.parse` ao carregar.
+- `getItem` retorna `null` quando a chave nunca foi salva — precisa ser tratado antes de tentar usar o resultado como objeto.
+- Persistência não é automática: `save`/`load` só rodam nos momentos em que são explicitamente chamados, não existe sincronização "por trás dos panos".
+- Uma versão do roadmap ser rápida de implementar não significa tempo perdido nas versões anteriores — construir o `userData` do jeito certo na v0.4 foi o que tornou essa v0.5 quase trivial.
+
+## ⚠️ Dívidas Técnicas / Pontos para Revisar
+
+- `loadUserData()` hoje só lida com `objectives`; ao crescer o `userData` (perfis, notas, favoritos), revisar se a substituição por propriedade continua suficiente ou se precisa de algo mais estruturado.
+
+## 🔮 Próximos Passos
+
+- Iniciar V0.6 – Sistema de Perfis.
+
+---
+
+<details>
+<summary> 🔍 Detalhes Técnicos / Trechos de Código / Logs </summary>
+
+### Código de Exemplo / Snippets Principais
+
+**`services/storage.js`:**
+
+```js
+import { userData } from "../data/userData.js";
+
+export function saveUserData() {
+  localStorage.setItem("userData", JSON.stringify(userData));
+}
+
+export function loadUserData() {
+  const salvo = JSON.parse(localStorage.getItem("userData"));
+  if (salvo) {
+    userData.objectives = salvo.objectives;
+  }
+}
+```
+
+</details>
+<br>
