@@ -688,3 +688,214 @@ export const userData = {
 
 </details>
 <br>
+
+# Devlog #8 [v0.4] - Navegação Sucesso → Objetivo + Status do Objetivo
+
+> **Data:** 29/08/2026  
+> **Status:** 🟢 Concluído
+
+---
+
+## 🎯 Objetivo
+
+Permitir clicar em um sucesso e visualizar seus objetivos. Marcar cada objetivo como pendente/concluído através de um checkbox, com o progresso armazenado em memória, separado do `gameData`.
+
+## ✨ O que foi implementado
+
+- [x] **[FEATURE]** Criado `renderObjectives.js`: renderiza os objetivos do sucesso selecionado em um container próprio (`#obj-container`).
+- [x] **[FEATURE]** Criado `onSelectedAchievement.js`, handler específico para seleção de sucesso, no mesmo padrão de `onSelectedRegion.js`.
+- [x] **[FEATURE]** Implementado `state.currentAchievement`, armazenando o `id` do sucesso selecionado.
+- [x] **[FEATURE]** Criado `userData.js`, separado do `gameData`, para armazenar o progresso do jogador: `{ objectives: { [id]: { status } } }`.
+- [x] **[FEATURE]** Criado `renderCheckbox.js` (`renderCheckboxItem`), responsável por desenhar cada objetivo com nome + checkbox.
+- [x] **[FEATURE]** Criado `onCheckboxCheck.js`: liga o checkbox ao `userData`, lendo o status ao renderizar (checkbox nasce marcado se já estiver `completed`) e gravando o novo status no evento `change`.
+- [x] **[FEATURE]** Adicionado CSS (`li:has(input[type="checkbox"]:checked)`) para feedback visual de conclusão (`line-through` + cor), sem precisar de JS adicional.
+- [x] **[REFACTOR]** `renderList()` passou a aceitar um segundo callback, permitindo que a seleção de um item dispare a atualização da interface.
+- [x] **[REFACTOR]** `onSelectedRegion` reseta `state.currentAchievement` ao selecionar uma nova região.
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **Renderer específico para objetivos:** `renderList()` (genérica, feita para itens com `name`) não foi reaproveitada para objetivos, já que estes precisam de um elemento a mais (checkbox). Optado por um renderer próprio (`renderCheckboxItem`) em vez de forçar `if`s de tipo dentro de `renderList()`.
+
+- **`userData` indexado diretamente por `id`:** Cogitada uma estrutura aninhada por achievement (`achievements: [{ id, objectives: [...] }]`), pensando em manter os dados "organizados por dono". Decisão revertida em favor de `objectives: { [id]: { status } }` plano — o uso real é sempre "sei o `id`, quero o status", e a estrutura plana resolve isso com acesso direto, sem loops aninhados.
+
+- **`id` como elo entre `gameData` e `userData`:** O vínculo entre um objetivo do `gameData` e sua entrada no `userData` é o próprio `id` do objetivo (lido dinamicamente do `gameData` ao renderizar), nunca um valor reescrito manualmente à mão em `userData.js`.
+
+- **`userData` não precisa ser pré-populado:** Entradas em `userData.objectives` só são criadas na primeira interação com aquele objetivo (`if (!userData.objectives[objective]) { ... }`). Isso permite adicionar objetivos novos em `gameData` sem precisar lembrar de duplicar a entrada em `userData.js` manualmente.
+
+- **`onCheckboxCheck` é o único ponto que conhece `userData`:** A inicialização de uma entrada nova em `userData.objectives` foi colocada dentro do próprio `onCheckboxCheck`, já que ele já era o único responsável por ler/escrever ali. Considerado que isso não é acúmulo de função, pois é a mesma responsabilidade já existente sendo tratada com mais cuidado (diferente do caso do handler genérico, onde a regra pertencia a outra camada).
+
+- **Clique na área do item também marca o checkbox:** Em vez de duplicar a lógica de toggle em dois listeners (um no `<li>`, outro no `change` do checkbox), o clique no item apenas simula um clique no checkbox (`checkbox.click()`), reaproveitando o mesmo `change` já registrado. Verificado `event.target !== checkbox` para não disparar duas vezes quando o clique já for direto no checkbox (efeito de bubbling).
+
+## 🐛 Desafios & Soluções
+
+### Problema Encontrado 1
+
+Ao clicar em um objetivo, a aplicação quebrava com `TypeError: data is not iterable`.
+
+### Causa Raiz
+
+`renderObjectives()` já percorria manualmente a lista de objetivos (`for (let k of obj)`) e, dentro do loop, chamava `renderList(lugar, k, ...)` passando um **item único** (`k`) no lugar da **lista inteira** que a função espera para seu próprio `for...of` interno.
+
+### Como foi Resolvido
+
+Removido o loop manual redundante, passando a lista inteira diretamente.
+
+---
+
+### Problema Encontrado 2
+
+Clicar em um sucesso não atualizava a interface para mostrar os objetivos.
+
+### Causa Raiz
+
+`renderAchievements()` passava uma função vazia (`() => {}`) no lugar do callback real de atualização da interface.
+
+### Como foi Resolvido
+
+Substituído pela referência correta (`updateInterface`), no mesmo padrão já usado para regiões.
+
+---
+
+### Problema Encontrado 3
+
+`renderObjectives()` desenhava os objetivos de **todos** os sucessos de **todas** as regiões, e corrompia `state.currentAchievement` sozinha durante a renderização.
+
+### Causa Raiz
+
+Condição de filtro escrita como atribuição, não comparação:
+
+```js
+if ((state.currentAchievement = j.id)) {
+```
+
+Um único `=` atribui e retorna o valor atribuído; como `j.id` é sempre uma string não vazia (truthy), a condição era sempre verdadeira, e o `state` era sobrescrito a cada iteração do loop.
+
+### Como foi Resolvido
+
+Corrigido para comparação estrita: `if (state.currentAchievement === j.id)`.
+
+---
+
+### Problema Encontrado 4
+
+Ao trocar de região, o container de objetivos mantinha conteúdo do sucesso selecionado na região anterior.
+
+### Causa Raiz
+
+`state.currentAchievement` não era resetado ao selecionar uma nova região.
+
+### Como foi Resolvido
+
+`onSelectedRegion` passou a resetar `state.currentAchievement = ""` antes do callback, dispensando qualquer limpeza manual de DOM por fora (`renderObjectives()` já limpa e redesenha a cada `updateInterface()`).
+
+---
+
+### Problema Encontrado 5
+
+Ao marcar um objetivo que ainda não tinha entrada em `userData.objectives`, a aplicação quebrava com `TypeError: Cannot read properties of undefined (reading 'status')`.
+
+### Causa Raiz
+
+`userData.objectives[objective].status` era acessado antes de garantir que `userData.objectives[objective]` existia.
+
+### Como foi Resolvido
+
+Adicionada checagem antes de qualquer leitura/escrita:
+
+```js
+if (!userData.objectives[objective]) {
+  userData.objectives[objective] = { status: "pending" };
+}
+```
+
+---
+
+### Problema Encontrado 6
+
+Uma tentativa de inicializar a entrada no `userData` acabou sobrescrevendo entradas já marcadas como `"completed"`, resetando-as para `"pending"` toda vez que o objetivo era renderizado.
+
+### Causa Raiz
+
+A atribuição `userData.objectives[objective] = { status: "pending" }` rodava incondicionalmente, fora de qualquer verificação de existência.
+
+### Como foi Resolvido
+
+Condicionada à ausência da entrada (ver Problema 5), garantindo que status já salvo nunca é sobrescrito por engano.
+
+## 💡 Lições Aprendidas
+
+- Um único `=` dentro de um `if` é sintaticamente válido (atribuição, não comparação) e não gera erro — o bug fica silencioso, só percebido pelo comportamento incorreto.
+- Estrutura de dados deveria ser pensada a partir de "como vou ler isso depois", não só de "como fica organizado escrever isso agora" — uma estrutura aninhada pode parecer mais organizada e custar acesso mais caro (loops aninhados) sem necessidade real.
+- Dado de progresso do jogador (`userData`) não precisa (e não deve) ser pré-populado manualmente espelhando o `gameData` — nasce vazio e ganha entradas sob demanda, tratando a ausência como valor padrão.
+- Nem toda responsabilidade nova é acúmulo de função: tratar melhor um caso de borda (entrada inexistente) dentro de uma função que já era dona daquele dado é diferente de uma função absorver uma decisão que pertence a outra camada.
+- Eventos disparados em elementos filhos também contam como disparados nos elementos pais (bubbling) — dois listeners parecidos em pai e filho podem rodar em duplicidade se não houver checagem de `event.target`.
+- `elemento.click()` simula um clique real e dispara os listeners já registrados naquele elemento — não é o mesmo que chamar uma função manualmente, e evita duplicar lógica.
+- CSS reage a mudanças de estado nativo do elemento (`:checked`) automaticamente via `:has()`, sem necessidade de JS adicional para refletir status visualmente.
+
+## ⚠️ Dívidas Técnicas / Pontos para Revisar
+
+- Organizar os commits acumulados (vários dias de mudanças não commitadas/pushed) antes de iniciar a v0.5.
+- Estilização mais completa do checkbox (esconder input nativo, usar `label` customizada) adiada de propósito para a v0.13 (Polimento de UI), quando houver mais elementos de interface para pensar em conjunto.
+- Reavaliar, conforme surgirem novos tipos de item clicável, se o padrão de handlers específicos + renderers específicos continua escalando bem.
+
+## 🔮 Próximos Passos
+
+- Iniciar V0.5 – Persistência com LocalStorage: `userData` já está em estrutura plana adequada para `JSON.stringify`/`JSON.parse`.
+- Organizar histórico de commits pendentes antes de seguir.
+
+---
+
+<details>
+<summary> 🔍 Detalhes Técnicos / Trechos de Código / Logs </summary>
+
+### Código de Exemplo / Snippets Principais
+
+**Bug de atribuição vs. comparação:**
+
+```js
+// Antes (bug)
+if ((state.currentAchievement = j.id)) { ... }
+
+// Depois
+if (state.currentAchievement === j.id) { ... }
+```
+
+**Inicialização segura de entrada no `userData`:**
+
+```js
+function onCheckboxCheck(checkbox, objective) {
+  if (!userData.objectives[objective]) {
+    userData.objectives[objective] = { status: "pending" };
+  }
+  if (userData.objectives[objective].status === "completed") {
+    checkbox.checked = true;
+  }
+  checkbox.addEventListener("change", () => {
+    userData.objectives[objective] = checkbox.checked
+      ? { status: "completed" }
+      : { status: "pending" };
+  });
+}
+```
+
+**Clique no item simulando clique no checkbox:**
+
+```js
+item.addEventListener("click", (event) => {
+  if (event.target !== checkbox) {
+    checkbox.click();
+  }
+});
+```
+
+**CSS reagindo ao estado do checkbox:**
+
+```css
+li:has(input[type="checkbox"]:checked) {
+  text-decoration: line-through;
+  color: #ffffff9c;
+}
+```
+
+</details>
+<br>
