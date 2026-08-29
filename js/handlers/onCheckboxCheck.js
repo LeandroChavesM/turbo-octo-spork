@@ -1,4 +1,5 @@
 import { userData } from "../data/userData.js";
+import { saveUserData } from "../services/storage.js";
 
 function onCheckboxCheck(checkbox, objective) {
   if (!userData.objectives[objective]) {
@@ -13,6 +14,7 @@ function onCheckboxCheck(checkbox, objective) {
     userData.objectives[objective] = checkbox.checked
       ? { status: "completed" }
       : { status: "pending" };
+    saveUserData();
   });
 }
 
