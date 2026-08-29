@@ -975,3 +975,116 @@ export function loadUserData() {
 
 </details>
 <br>
+
+# Devlog 10 [v0.6] - Sistema de Perfis
+
+> **Data:** 29/08/2026  
+> **Status:** 🟡 Em andamento
+
+---
+
+## 🎯 Objetivo
+
+Permitir múltiplos perfis, cada um com progresso (`userData`) isolado do outro.
+
+## ✨ O que foi implementado
+
+- [x] **[FEATURE]** `userData.js` reestruturado para agrupar progresso por perfil: `profiles: { [profileId]: { name, objectives } } }`.
+- [x] **[FEATURE]** Adicionado `state.currentProfile`, guardando qual perfil está ativo, com `"default"` como perfil inicial pré-existente.
+- [x] **[FEATURE]** Criado `services/getCurrentProfile.js`, retornando `userData.profiles[state.currentProfile]` — centraliza a navegação por perfil num único lugar.
+- [x] **[REFACTOR]** `onCheckboxCheck.js` passou a ler/escrever via `getCurrentProfile().objectives[...]`, em vez de `userData.objectives[...]` direto.
+- [x] **[FIX]** `loadUserData()` ajustado para navegar até `saved.profiles[state.currentProfile].objectives`, refletindo a nova estrutura (antes ainda buscava `saved.objectives`, do formato antigo, e apagava o progresso do perfil ao carregar).
+- [ ] Tela/fluxo de criar, selecionar e excluir perfil (ainda não iniciado — hoje só existe o perfil `"default"` fixo).
+- [ ] Proteção em `loadUserData()` contra perfil inexistente no `localStorage` salvo anteriormente (identificado, não corrigido ainda).
+
+## 🧠 Decisões de Arquitetura & Design
+
+- **Perfil padrão fixo por enquanto:** diferente de `objectives` (que nasce vazio e ganha entradas sob demanda), decidido que `profiles` **precisa** de ao menos um perfil pré-existente (`"default"`), já que não existe um "perfil implícito" válido como existe um "objective pendente implícito". A criação real de perfis fica para quando a UI de perfis existir.
+
+- **`getCurrentProfile()` como camada fina, não um padrão geral:** cogitado um arquivo único (`getCurrentState.js`) que centralizasse leitura de todo `state`. Decidido não generalizar — `state.currentRegion`/`currentAchievement` são acesso direto sem navegação real a esconder; só o acesso a perfil tem aninhamento (`profiles[currentProfile]`) que justifica uma função própria. Mesmo princípio já usado antes: abstrair apenas onde há complexidade real para esconder.
+
+- **`saveUserData()` não precisou mudar:** por serializar `userData` inteiro (independente do formato interno), continuou funcionando com a nova estrutura de perfis sem nenhuma alteração — só `loadUserData()`, que navega manualmente pela estrutura, precisou ser ajustado.
+
+## 🐛 Desafios & Soluções
+
+### Problema Encontrado 1
+
+Após reestruturar `userData` para múltiplos perfis, `onCheckboxCheck` passou a lançar erro ao tentar acessar `objectives` de um objetivo.
+
+### Causa Raiz
+
+`loadUserData()` ainda navegava pelo formato antigo (`saved.objectives`), que não existe mais nesse nível — a propriedade `objectives` passou a ficar dentro de `saved.profiles[perfil]`. Como `saved.objectives` resultava em `undefined`, essa atribuição apagava o `objectives` que o perfil corrente já tinha em memória.
+
+### Como foi Resolvido
+
+`loadUserData()` ajustado para navegar `saved.profiles[state.currentProfile].objectives`, replicando o mesmo caminho usado por `getCurrentProfile()`, agora aplicado sobre o objeto vindo do `localStorage`.
+
+---
+
+### Problema Encontrado 2
+
+Ao testar manualmente a troca de perfil (editando `state.currentProfile` para um perfil criado apenas no arquivo `userData.js`, ainda não salvo no `localStorage`), a aplicação quebrou com `TypeError: Cannot read properties of undefined (reading 'objectives')`.
+
+### Causa Raiz
+
+O `localStorage` continha um `userData` salvo de uma sessão anterior, sem esse perfil novo. `loadUserData()` tentava acessar `saved.profiles[state.currentProfile]`, que não existia no que estava salvo.
+
+### Como foi Resolvido (parcial)
+
+Resolvido manualmente para fins de teste, limpando o `localStorage`. Identificado como dívida técnica: `loadUserData()` deveria validar a existência do perfil em `saved` antes de acessar `.objectives`, mesmo padrão de proteção já usado para objectives inexistentes (`if (!existe) { ... }`) — ainda não implementado.
+
+## 💡 Lições Aprendidas
+
+- Mudar o formato de um dado em um lugar (ex: `userData` passando a agrupar por perfil) não gera erro na hora da mudança — só quebra, silenciosamente, quando outro trecho tenta ler pelo caminho antigo. Vale caçar todos os lugares que dependem do formato antigo assim que ele muda.
+- Dado salvo em `localStorage` de sessões anteriores pode ficar "desatualizado" em relação à estrutura de dados atual do código — código que lê esse dado salvo precisa ser tão defensivo quanto o que lê dados em memória.
+- Nem toda repetição justifica uma camada de abstração geral: só vale extrair uma função de "atalho" quando existe navegação/complexidade real por trás, não simples leitura de propriedade.
+
+## ⚠️ Dívidas Técnicas / Pontos para Revisar
+
+- Proteger `loadUserData()` contra a ausência de `saved.profiles[state.currentProfile]` (perfil novo ainda não presente no `localStorage` salvo).
+- Implementar de fato a criação, seleção e exclusão de perfis (hoje só existe `"default"` fixo, sem UI).
+- Validar isolamento completo entre dois perfis reais (teste manual iniciado, ainda não concluído após o ajuste do bug de carregamento).
+
+## 🔮 Próximos Passos
+
+- Corrigir a proteção de `loadUserData()` contra perfil inexistente.
+- Concluir o teste manual de isolamento entre perfis diferentes.
+- Construir a UI de criar/selecionar/excluir perfil.
+
+---
+
+<details>
+<summary> 🔍 Detalhes Técnicos / Trechos de Código / Logs </summary>
+
+### Código de Exemplo / Snippets Principais
+
+**`services/getCurrentProfile.js`:**
+
+```js
+import { userData } from "../data/userData.js";
+import { state } from "../state.js";
+
+function getCurrentProfile() {
+  return userData.profiles[state.currentProfile];
+}
+
+export default getCurrentProfile;
+```
+
+**Bug de formato antigo em `loadUserData()`:**
+
+```js
+// Antes (bug — formato antigo)
+if (saved) {
+  userData.objectives = saved.objectives;
+}
+
+// Depois
+if (saved) {
+  getCurrentProfile().objectives =
+    saved.profiles[state.currentProfile].objectives;
+}
+```
+
+</details>
+<br>
