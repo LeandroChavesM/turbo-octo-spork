@@ -1,8 +1,16 @@
-
-function renderCheckbox(lugar, data, callback) {
+function renderCheckboxItem(lugar, objective, callback) {
+  let item = document.createElement("li");
   const checkbox = document.createElement("input");
-  callback(checkbox, data);
-  lugar.appendChild(checkbox);
+  checkbox.type = "checkbox";
+  item.textContent = objective.name;
+  callback(checkbox, objective.id);
+  item.addEventListener("click", () => {
+    if (event.target !== checkbox) {
+      checkbox.click();
+    }
+  });
+  item.appendChild(checkbox);
+  lugar.appendChild(item);
 }
 
-export default renderCheckbox;
+export default renderCheckboxItem;

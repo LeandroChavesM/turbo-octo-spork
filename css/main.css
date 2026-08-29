@@ -13,7 +13,6 @@ body {
 #app {
   display: flex;
   width: 100%;
-  
 }
 
 #sidebar {
@@ -28,7 +27,6 @@ body {
   height: 50vh;
   display: flex;
   flex-direction: row;
-
 }
 
 #obj-container {
@@ -39,4 +37,13 @@ body {
   height: 200px;
   position: fixed;
   top: 27%;
+}
+
+li {
+  cursor: pointer;
+}
+
+li:has(input[type="checkbox"]:checked) {
+  text-decoration: line-through;
+  color: #ffffff9c;
 }

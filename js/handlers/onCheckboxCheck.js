@@ -1,8 +1,18 @@
 import { userData } from "../data/userData.js";
 
 function onCheckboxCheck(checkbox, objective) {
+  if (!userData.objectives[objective]) {
+    userData.objectives[objective] = { status: "pending" };
+  }
+
+  if (userData.objectives[objective].status === "completed") {
+    checkbox.checked = true;
+  }
+
   checkbox.addEventListener("change", () => {
-    console.log(userData.objectives[objective.id]);
+    userData.objectives[objective] = checkbox.checked
+      ? { status: "completed" }
+      : { status: "pending" };
   });
 }
 
