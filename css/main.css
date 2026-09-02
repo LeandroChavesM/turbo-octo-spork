@@ -47,3 +47,12 @@ li:has(input[type="checkbox"]:checked) {
   text-decoration: line-through;
   color: #ffffff9c;
 }
+
+#profile-container {
+  width: 100px;
+  height: 200px;
+  background-color: burlywood;
+  position: absolute;
+  right: 1%;
+  top: 0;
+}
