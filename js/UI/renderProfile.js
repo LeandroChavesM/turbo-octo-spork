@@ -1,16 +1,15 @@
 import { userData } from "../data/userData.js";
+
 import onSelectedProfile from "../handlers/onSelectedProfile.js";
 
+import renderList from "./renderList.js";
+
 function renderProfile(lugar, callback) {
-  const lista = document.createElement("ul");
-  lugar.appendChild(lista);
-  for (let profile in userData.profiles) {
-    let item = document.createElement("li");
-    onSelectedProfile(item, profile, callback);
-    item.textContent = userData.profiles[profile].name;
-    item.style.cursor = "pointer";
-    lista.appendChild(item);
-  }
+  const profiles = Object.entries(userData.profiles).map(([chave, valor]) => {
+    return { key: [chave], name: valor.name };
+  });
+
+  renderList(lugar, profiles, onSelectedProfile, callback);
 }
 
 export default renderProfile;
