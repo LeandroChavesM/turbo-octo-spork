@@ -27,6 +27,7 @@ body {
   height: 50vh;
   display: flex;
   flex-direction: row;
+  padding: 5px;
 }
 
 #obj-container {
@@ -52,7 +53,9 @@ li:has(input[type="checkbox"]:checked) {
   width: 100px;
   height: 200px;
   background-color: burlywood;
+  margin-top: 10px;
   position: absolute;
+  padding: 5px;
   right: 1%;
   top: 0;
 }
