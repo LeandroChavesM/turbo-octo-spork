@@ -1,4 +1,3 @@
-import { userData } from "../data/userData.js";
 import { saveUserData } from "../services/storage.js";
 import getCurrentProfile from "../services/getCurrentProfile.js";
 
